@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var airpodsManager = AirPodsMotionManager()
     @StateObject private var postureMonitor = PostureMonitor()
+    @State private var showSettings = false
 
     var body: some View {
         NavigationView {
@@ -28,7 +29,7 @@ struct ContentView: View {
                 VStack(spacing: 10) {
                     Text("\(Int(postureMonitor.currentAngle))°")
                         .font(.system(size: 80, weight: .bold))
-                        .foregroundColor(postureMonitor.currentAngle > 30 ? .red : .green)
+                        .foregroundColor(postureMonitor.currentAngle > postureMonitor.badPostureThreshold ? .red : .green)
 
                     Text("Head Angle")
                         .font(.headline)
@@ -36,7 +37,7 @@ struct ContentView: View {
 
                     Text(postureStatusText)
                         .font(.subheadline)
-                        .foregroundColor(postureMonitor.currentAngle > 30 ? .red : .green)
+                        .foregroundColor(postureMonitor.currentAngle > postureMonitor.badPostureThreshold ? .red : .green)
                 }
                 .padding()
 
@@ -80,6 +81,18 @@ struct ContentView: View {
             }
             .padding()
             .navigationTitle("Posture Monitor")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                }
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView(postureMonitor: postureMonitor)
+            }
             .onAppear {
                 airpodsManager.checkAvailability()
                 setupCallbacks()
@@ -88,7 +101,7 @@ struct ContentView: View {
     }
 
     private var postureStatusText: String {
-        if postureMonitor.currentAngle > 30 {
+        if postureMonitor.currentAngle > postureMonitor.badPostureThreshold {
             return "Bad Posture - Look Up!"
         } else {
             return "Good Posture ✓"

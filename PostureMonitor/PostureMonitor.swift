@@ -8,9 +8,9 @@ class PostureMonitor: ObservableObject {
     @Published var badPostureCount: Int = 0
     @Published var isMonitoring: Bool = false
 
-    // Configuration
-    private let badPostureThreshold: Double = 30.0 // degrees
-    private let notificationInterval: TimeInterval = 5.0 // seconds
+    // Configurable settings
+    @Published var badPostureThreshold: Double = 30.0 // degrees
+    @Published var notificationInterval: TimeInterval = 5.0 // seconds
 
     // Bad posture timing
     private var badPostureStartTime: Date?
