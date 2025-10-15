@@ -10,9 +10,22 @@
 		D8E34F3B2E9F6BB100ACBF60 /* PostureMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PostureMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D8E34F5B2E9F6FB600ACBF60 /* Exceptions for "PostureMonitor" folder in "PostureMonitor" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D8E34F3A2E9F6BB100ACBF60 /* PostureMonitor */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D8E34F3D2E9F6BB100ACBF60 /* PostureMonitor */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D8E34F5B2E9F6FB600ACBF60 /* Exceptions for "PostureMonitor" folder in "PostureMonitor" target */,
+			);
 			path = PostureMonitor;
 			sourceTree = "<group>";
 		};
@@ -255,6 +268,9 @@
 				DEVELOPMENT_TEAM = 464FN8LT76;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PostureMonitor/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSMotionUsageDescription = "We need motion data from your AirPods to\n   track your head posture.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,6 +300,9 @@
 				DEVELOPMENT_TEAM = 464FN8LT76;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PostureMonitor/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSMotionUsageDescription = "We need motion data from your AirPods to\n   track your head posture.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
