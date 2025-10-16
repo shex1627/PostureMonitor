@@ -1,5 +1,6 @@
 import Foundation
 import UserNotifications
+import UIKit
 
 /// Monitors posture and sends notifications when posture is bad
 class PostureMonitor: ObservableObject {
@@ -11,6 +12,7 @@ class PostureMonitor: ObservableObject {
     // Configurable settings
     @Published var badPostureThreshold: Double = 30.0 // degrees
     @Published var notificationInterval: TimeInterval = 5.0 // seconds
+    @Published var keepScreenOn: Bool = false // prevent screen from auto-locking
 
     // Bad posture timing
     private var badPostureStartTime: Date?
@@ -30,6 +32,9 @@ class PostureMonitor: ObservableObject {
         // Request notification permissions
         requestNotificationPermission()
 
+        // Control screen idle timer
+        updateScreenIdleTimer()
+
         // Start timer for session duration
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.updateSessionDuration()
@@ -44,6 +49,10 @@ class PostureMonitor: ObservableObject {
         isMonitoring = false
         badPostureStartTime = nil
         lastNotificationTime = nil
+
+        // Restore screen idle timer to normal
+        UIApplication.shared.isIdleTimerDisabled = false
+
         print("Stopped posture monitoring")
     }
 
@@ -110,9 +119,21 @@ class PostureMonitor: ObservableObject {
 
     private func sendNotification(angle: Double) {
         let content = UNMutableNotificationContent()
-        content.title = "Posture Alert!"
+        content.title = "⚠️ Posture Alert!"
         content.body = "Your head is tilted \(Int(angle))°. Straighten up!"
-        content.sound = .default
+
+        // Use critical alert sound for more impact (requires special permission)
+        // For now, use defaultCritical which is louder than default
+        if #available(iOS 15.0, *) {
+            content.sound = .defaultCritical
+            content.interruptionLevel = .timeSensitive
+        } else {
+            // Use default ringtone sound which is louder
+            content.sound = .default
+        }
+
+        // Add badge to make it more noticeable
+        content.badge = NSNumber(value: badPostureCount)
 
         let request = UNNotificationRequest(
             identifier: UUID().uuidString,
@@ -125,6 +146,16 @@ class PostureMonitor: ObservableObject {
                 print("Notification error: \(error)")
             } else {
                 print("Sent posture alert notification")
+            }
+        }
+    }
+
+    func updateScreenIdleTimer() {
+        // Only keep screen on if monitoring is active AND setting is enabled
+        DispatchQueue.main.async {
+            UIApplication.shared.isIdleTimerDisabled = self.isMonitoring && self.keepScreenOn
+            if self.keepScreenOn && self.isMonitoring {
+                print("Screen will stay on during monitoring")
             }
         }
     }

@@ -38,6 +38,22 @@ struct SettingsView: View {
                 } header: {
                     Text("Notifications")
                 }
+
+                Section {
+                    Toggle("Keep Screen On", isOn: Binding(
+                        get: { postureMonitor.keepScreenOn },
+                        set: { newValue in
+                            postureMonitor.keepScreenOn = newValue
+                            postureMonitor.updateScreenIdleTimer()
+                        }
+                    ))
+
+                    Text("Prevents screen from auto-locking during monitoring sessions")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } header: {
+                    Text("Display")
+                }
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)

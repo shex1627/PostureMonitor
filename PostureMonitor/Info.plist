@@ -6,5 +6,7 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<key>NSMotionUsageDescription</key>
+	<string>This app uses motion data from your AirPods to track your head posture and alert you when slouching.</string>
 </dict>
 </plist>
