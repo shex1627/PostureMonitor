@@ -9,10 +9,27 @@ class PostureMonitor: ObservableObject {
     @Published var badPostureCount: Int = 0
     @Published var isMonitoring: Bool = false
 
-    // Configurable settings
-    @Published var badPostureThreshold: Double = 30.0 // degrees
-    @Published var notificationInterval: TimeInterval = 5.0 // seconds
-    @Published var keepScreenOn: Bool = false // prevent screen from auto-locking
+    // Configurable settings with persistence
+    @Published var badPostureThreshold: Double {
+        didSet {
+            UserDefaults.standard.set(badPostureThreshold, forKey: "badPostureThreshold")
+            print("💾 Saved threshold: \(Int(badPostureThreshold))°")
+        }
+    }
+
+    @Published var notificationInterval: TimeInterval {
+        didSet {
+            UserDefaults.standard.set(notificationInterval, forKey: "notificationInterval")
+            print("💾 Saved notification interval: \(Int(notificationInterval))s")
+        }
+    }
+
+    @Published var keepScreenOn: Bool {
+        didSet {
+            UserDefaults.standard.set(keepScreenOn, forKey: "keepScreenOn")
+            print("💾 Saved keep screen on: \(keepScreenOn)")
+        }
+    }
 
     // Bad posture timing
     private var badPostureStartTime: Date?
@@ -21,6 +38,15 @@ class PostureMonitor: ObservableObject {
     // Session tracking
     private var sessionStartTime: Date?
     private var timer: Timer?
+
+    init() {
+        // Load saved settings or use defaults
+        self.badPostureThreshold = UserDefaults.standard.object(forKey: "badPostureThreshold") as? Double ?? 30.0
+        self.notificationInterval = UserDefaults.standard.object(forKey: "notificationInterval") as? TimeInterval ?? 5.0
+        self.keepScreenOn = UserDefaults.standard.bool(forKey: "keepScreenOn")
+
+        print("📱 Loaded settings - Threshold: \(Int(badPostureThreshold))°, Interval: \(Int(notificationInterval))s, Keep Screen On: \(keepScreenOn)")
+    }
 
     func startMonitoring() {
         sessionStartTime = Date()
