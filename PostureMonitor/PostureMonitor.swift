@@ -161,6 +161,14 @@ class PostureMonitor: ObservableObject {
         // Add badge to make it more noticeable
         content.badge = NSNumber(value: badPostureCount)
 
+        // Add icon as notification attachment for richer display
+        if let iconImage = UIImage(named: "NotificationIcon"),
+           let tempURL = saveImageTemporarily(image: iconImage) {
+            if let attachment = try? UNNotificationAttachment(identifier: "icon", url: tempURL, options: nil) {
+                content.attachments = [attachment]
+            }
+        }
+
         let request = UNNotificationRequest(
             identifier: UUID().uuidString,
             content: content,
@@ -173,6 +181,22 @@ class PostureMonitor: ObservableObject {
             } else {
                 print("Sent posture alert notification")
             }
+        }
+    }
+
+    private func saveImageTemporarily(image: UIImage) -> URL? {
+        guard let imageData = image.pngData() else { return nil }
+
+        let tempDir = FileManager.default.temporaryDirectory
+        let fileName = "notification-icon-\(UUID().uuidString).png"
+        let fileURL = tempDir.appendingPathComponent(fileName)
+
+        do {
+            try imageData.write(to: fileURL)
+            return fileURL
+        } catch {
+            print("Failed to save notification image: \(error)")
+            return nil
         }
     }
 
