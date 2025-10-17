@@ -3,13 +3,22 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var airpodsManager = AirPodsMotionManager()
     @StateObject private var postureMonitor = PostureMonitor()
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     @State private var showSettings = false
+    @State private var showPaywall = false
+    @State private var showSessionLimitAlert = false
+    @State private var sessionLimitMessage = ""
 
     var body: some View {
         NavigationView {
             VStack(spacing: 30) {
                 // Status indicator
                 statusBanner
+
+                // Free tier session info
+                if !subscriptionManager.isPremium && !postureMonitor.isMonitoring {
+                    sessionLimitBanner
+                }
 
                 // Current angle display
                 VStack(spacing: 10) {
@@ -80,6 +89,17 @@ struct ContentView: View {
             .sheet(isPresented: $showSettings) {
                 SettingsView(postureMonitor: postureMonitor)
             }
+            .sheet(isPresented: $showPaywall) {
+                PaywallView()
+            }
+            .alert("Session Limit Reached", isPresented: $showSessionLimitAlert) {
+                Button("Upgrade to Premium") {
+                    showPaywall = true
+                }
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(sessionLimitMessage)
+            }
             .onAppear {
                 airpodsManager.checkAvailability()
                 setupCallbacks()
@@ -91,6 +111,11 @@ struct ContentView: View {
                     airpodsManager.stopTracking()
                     postureMonitor.stopMonitoring()
                 }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .sessionTimeLimitReached)) { _ in
+                // Session time limit reached (30 minutes for free tier)
+                sessionLimitMessage = "Your free session limit of 30 minutes has been reached. Upgrade to Premium for unlimited session duration!"
+                showSessionLimitAlert = true
             }
         }
     }
@@ -196,9 +221,18 @@ struct ContentView: View {
             airpodsManager.stopTracking()
             postureMonitor.stopMonitoring()
         } else {
-            // Start
-            postureMonitor.startMonitoring()
-            airpodsManager.startTracking()
+            // Check if user can start a new session
+            let (canStart, reason) = postureMonitor.canStartSession()
+
+            if canStart {
+                // Start
+                postureMonitor.startMonitoring()
+                airpodsManager.startTracking()
+            } else {
+                // Show limit message
+                sessionLimitMessage = reason ?? "Session limit reached"
+                showSessionLimitAlert = true
+            }
         }
     }
 
@@ -212,6 +246,33 @@ struct ContentView: View {
             airpodsManager?.stopTracking()
             postureMonitor?.stopMonitoring()
         }
+    }
+
+    private var sessionLimitBanner: some View {
+        Button(action: { showPaywall = true }) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Image(systemName: "timer")
+                            .foregroundColor(.blue)
+                        Text("Free Tier: \(postureMonitor.sessionsRemainingToday)/3 sessions today")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+                    }
+                    Text("30 min per session • Tap to upgrade for unlimited")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.blue)
+            }
+            .padding()
+            .background(Color.blue.opacity(0.1))
+            .cornerRadius(10)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 
     private func formatDuration(_ duration: TimeInterval) -> String {

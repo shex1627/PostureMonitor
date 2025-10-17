@@ -6,8 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D8E34F642EA1E4A600ACBF60 /* Adapty in Frameworks */ = {isa = PBXBuildFile; productRef = D8E34F632EA1E4A600ACBF60 /* Adapty */; };
+		D8E34F662EA1E4A600ACBF60 /* AdaptyUI in Frameworks */ = {isa = PBXBuildFile; productRef = D8E34F652EA1E4A600ACBF60 /* AdaptyUI */; };
+		D8E34F682EA1FDE300ACBF60 /* PostureMonitor.storekit in Resources */ = {isa = PBXBuildFile; fileRef = D8E34F672EA1FDE300ACBF60 /* PostureMonitor.storekit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		D8E34F3B2E9F6BB100ACBF60 /* PostureMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PostureMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8E34F672EA1FDE300ACBF60 /* PostureMonitor.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = PostureMonitor.storekit; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -36,6 +43,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8E34F642EA1E4A600ACBF60 /* Adapty in Frameworks */,
+				D8E34F662EA1E4A600ACBF60 /* AdaptyUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -45,6 +54,7 @@
 		D8E34F322E9F6BB100ACBF60 = {
 			isa = PBXGroup;
 			children = (
+				D8E34F672EA1FDE300ACBF60 /* PostureMonitor.storekit */,
 				D8E34F3D2E9F6BB100ACBF60 /* PostureMonitor */,
 				D8E34F3C2E9F6BB100ACBF60 /* Products */,
 			);
@@ -78,6 +88,8 @@
 			);
 			name = PostureMonitor;
 			packageProductDependencies = (
+				D8E34F632EA1E4A600ACBF60 /* Adapty */,
+				D8E34F652EA1E4A600ACBF60 /* AdaptyUI */,
 			);
 			productName = PostureMonitor;
 			productReference = D8E34F3B2E9F6BB100ACBF60 /* PostureMonitor.app */;
@@ -107,6 +119,9 @@
 			);
 			mainGroup = D8E34F322E9F6BB100ACBF60;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D8E34F622EA1E4A600ACBF60 /* XCRemoteSwiftPackageReference "AdaptySDK-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D8E34F3C2E9F6BB100ACBF60 /* Products */;
 			projectDirPath = "";
@@ -122,6 +137,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8E34F682EA1FDE300ACBF60 /* PostureMonitor.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -343,6 +359,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D8E34F622EA1E4A600ACBF60 /* XCRemoteSwiftPackageReference "AdaptySDK-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/adaptyteam/AdaptySDK-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D8E34F632EA1E4A600ACBF60 /* Adapty */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D8E34F622EA1E4A600ACBF60 /* XCRemoteSwiftPackageReference "AdaptySDK-iOS" */;
+			productName = Adapty;
+		};
+		D8E34F652EA1E4A600ACBF60 /* AdaptyUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D8E34F622EA1E4A600ACBF60 /* XCRemoteSwiftPackageReference "AdaptySDK-iOS" */;
+			productName = AdaptyUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D8E34F332E9F6BB100ACBF60 /* Project object */;
 }

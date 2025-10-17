@@ -28,6 +28,9 @@ struct PostureMonitorApp: App {
     init() {
         // Set up notification delegate for foreground notifications
         UNUserNotificationCenter.current().delegate = Self.notificationDelegate
+
+        // Initialize Adapty SDK
+        SubscriptionManager.shared.configure()
     }
 
     var body: some Scene {
