@@ -22,7 +22,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.ftdalpha.PostureMonitor.premium.lifetime",
+      "productID" : "com.shex1627.PostureMonitor.premium.lifetime",
       "referenceName" : "lifetime subscription",
       "type" : "NonRenewingSubscription"
     }
@@ -32,6 +32,8 @@
   ],
   "settings" : {
     "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
     "_storeKitErrors" : [
       {
         "current" : null,
@@ -86,7 +88,7 @@
       "localizations" : [
 
       ],
-      "name" : "com.ftdalpha.PostureMonitor.premium.monthly",
+      "name" : "com.shex1627.PostureMonitor.premium.monthly",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -107,7 +109,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.ftdalpha.PostureMonitor.premium.monthly",
+          "productID" : "com.shex1627.PostureMonitor.premium.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "monthly subscription",
           "subscriptionGroupID" : "E6A5A7F0",
@@ -123,7 +125,7 @@
       "localizations" : [
 
       ],
-      "name" : "com.ftdalpha.PostureMonitor.premium.yearly",
+      "name" : "com.shex1627.PostureMonitor.premium.yearly",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -144,7 +146,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.ftdalpha.PostureMonitor.premium.yearly",
+          "productID" : "com.shex1627.PostureMonitor.premium.yearly",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "annual subscription",
           "subscriptionGroupID" : "69259277",
