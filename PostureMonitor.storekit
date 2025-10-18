@@ -22,7 +22,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.shex1627.PostureMonitor.premium.lifetime",
+      "productID" : "com.shex1627.posturemonitor.premium.lifetime",
       "referenceName" : "lifetime subscription",
       "type" : "NonRenewingSubscription"
     }
@@ -88,7 +88,7 @@
       "localizations" : [
 
       ],
-      "name" : "com.shex1627.PostureMonitor.premium.monthly",
+      "name" : "com.shex1627.posturemonitor.premium.monthly",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -109,7 +109,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.shex1627.PostureMonitor.premium.monthly",
+          "productID" : "com.shex1627.posturemonitor.premium.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "monthly subscription",
           "subscriptionGroupID" : "E6A5A7F0",
@@ -125,7 +125,7 @@
       "localizations" : [
 
       ],
-      "name" : "com.shex1627.PostureMonitor.premium.yearly",
+      "name" : "com.shex1627.posturemonitor.premium.yearly",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -146,7 +146,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.shex1627.PostureMonitor.premium.yearly",
+          "productID" : "com.shex1627.posturemonitor.premium.yearly",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "annual subscription",
           "subscriptionGroupID" : "69259277",
