@@ -136,6 +136,10 @@ struct PaywallView: View {
                 // Load the paywall from Adapty using placementId
                 let paywall = try await Adapty.getPaywall(placementId: "main_paywall")
 
+                print("✅ Paywall loaded: \(paywall.placementId)")
+                print("📦 Paywall variation ID: \(paywall.variationId)")
+                print("🔍 Paywall has remote config: \(paywall.remoteConfig != nil)")
+
                 await MainActor.run {
                     self.paywall = paywall
                 }
@@ -155,7 +159,13 @@ struct PaywallView: View {
 
     private func loadProducts(for paywall: AdaptyPaywall) async {
         do {
+            print("🔄 Attempting to load products for paywall...")
             let products = try await Adapty.getPaywallProducts(paywall: paywall)
+
+            print("✅ Loaded \(products.count) products")
+            for product in products {
+                print("   📦 Product: \(product.vendorProductId) - \(product.localizedTitle ?? "No title")")
+            }
 
             await MainActor.run {
                 isLoading = false
