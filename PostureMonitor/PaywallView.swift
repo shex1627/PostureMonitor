@@ -53,14 +53,14 @@ struct PaywallView: View {
                         .padding(.horizontal)
                         .padding(.vertical, 8)
 
-                        // Products
+                        // Products - Compact horizontal layout
                         if isLoading {
                             ProgressView("Loading plans...")
                                 .padding()
                         } else if !products.isEmpty {
-                            VStack(spacing: 12) {
+                            HStack(spacing: 12) {
                                 ForEach(products, id: \.vendorProductId) { product in
-                                    ProductCard(
+                                    CompactProductOption(
                                         product: product,
                                         isSelected: selectedProduct?.vendorProductId == product.vendorProductId,
                                         onSelect: { selectedProduct = product }
@@ -239,73 +239,78 @@ struct FeatureRow: View {
     }
 }
 
-// MARK: - Product Card
-struct ProductCard: View {
+// MARK: - Compact Product Option
+struct CompactProductOption: View {
     let product: AdaptyPaywallProduct
     let isSelected: Bool
     let onSelect: () -> Void
 
     var body: some View {
         Button(action: onSelect) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(product.localizedTitle)
-                        .font(.headline)
-                        .foregroundColor(.primary)
+            VStack(spacing: 8) {
+                // Duration label
+                Text(durationLabel)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(isSelected ? .white : .primary)
 
-                    Text(product.localizedDescription)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                // Price
+                Text(product.localizedPrice ?? "")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(isSelected ? .white : .primary)
 
-                    if let period = product.subscriptionPeriod {
-                        Text(periodText(period))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+                // Price per month for subscriptions
+                if let period = product.subscriptionPeriod {
+                    Text(pricePerMonth(product, period: period))
+                        .font(.caption2)
+                        .foregroundColor(isSelected ? .white.opacity(0.9) : .green)
                 }
 
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(product.localizedPrice ?? "")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-
-                    if let period = product.subscriptionPeriod {
-                        Text(pricePerMonth(product, period: period))
-                            .font(.caption2)
-                            .foregroundColor(.green)
-                    }
+                // Best value badge for yearly
+                if isYearly {
+                    Text("BEST VALUE")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(isSelected ? .white : .green)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(isSelected ? Color.white.opacity(0.2) : Color.green.opacity(0.2))
+                        .cornerRadius(4)
                 }
             }
-            .padding()
-            .background(isSelected ? Color.blue.opacity(0.1) : Color.secondary.opacity(0.1))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .padding(.horizontal, 8)
+            .background(isSelected ? Color.blue : Color.secondary.opacity(0.1))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(PlainButtonStyle())
     }
 
-    private func periodText(_ period: AdaptySubscriptionPeriod) -> String {
-        let count = period.numberOfUnits
-        let unit = period.unit
-
-        switch unit {
-        case .day:
-            return count == 1 ? "Daily" : "\(count) days"
-        case .week:
-            return count == 1 ? "Weekly" : "\(count) weeks"
-        case .month:
-            return count == 1 ? "Monthly" : "\(count) months"
-        case .year:
-            return count == 1 ? "Yearly" : "\(count) years"
-        @unknown default:
-            return ""
+    private var durationLabel: String {
+        if let period = product.subscriptionPeriod {
+            switch period.unit {
+            case .month:
+                return "Monthly"
+            case .year:
+                return "Yearly"
+            case .week:
+                return "Weekly"
+            case .day:
+                return "Daily"
+            @unknown default:
+                return "Subscription"
+            }
         }
+        return "Lifetime"
+    }
+
+    private var isYearly: Bool {
+        product.subscriptionPeriod?.unit == .year
     }
 
     private func pricePerMonth(_ product: AdaptyPaywallProduct, period: AdaptySubscriptionPeriod) -> String {
@@ -332,7 +337,7 @@ struct ProductCard: View {
         formatter.maximumFractionDigits = 2
 
         if let formattedPrice = formatter.string(from: pricePerMonth as NSNumber) {
-            return "~\(formattedPrice)/month"
+            return "\(formattedPrice)/mo"
         }
 
         return ""
