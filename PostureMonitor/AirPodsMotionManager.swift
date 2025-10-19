@@ -35,6 +35,15 @@ class AirPodsMotionManager: ObservableObject {
     func checkAvailability() {
         let wasConnected = isAirPodsConnected
 
+        #if targetEnvironment(macCatalyst)
+        // CMHeadphoneMotionManager doesn't work on Mac Catalyst
+        isAirPodsConnected = false
+        airPodsStatus = .unsupported
+        print("❌ AirPods motion tracking is not supported on macOS")
+        print("   Please use this app on iOS/iPadOS instead")
+        return
+        #endif
+
         // Check audio route for connected headphones
         let currentRoute = AVAudioSession.sharedInstance().currentRoute
         let connectedOutput = currentRoute.outputs.first

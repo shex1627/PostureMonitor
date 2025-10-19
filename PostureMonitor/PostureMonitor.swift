@@ -12,7 +12,7 @@ class PostureMonitor: ObservableObject {
     // Free tier limits
     private let freeSessionsPerDay = 3
     private let freeSessionDurationLimit: TimeInterval = 30 * 60 // 30 minutes
-    private let freeTierThreshold: Double = 30.0
+    private let freeTierThreshold: Double = 25.0
     private let freeTierInterval: TimeInterval = 15.0
 
     // Computed property for sessions remaining today

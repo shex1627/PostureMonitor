@@ -57,7 +57,7 @@ struct SettingsView: View {
                         Text("\(Int(postureMonitor.badPostureThreshold))°")
                             .foregroundColor(.secondary)
                     }
-                    Slider(value: $postureMonitor.badPostureThreshold, in: 15...60, step: 5)
+                    Slider(value: $postureMonitor.badPostureThreshold, in: 15...40, step: 5)
                         .disabled(!subscriptionManager.isPremium)
                         .opacity(subscriptionManager.isPremium ? 1.0 : 0.5)
 
@@ -66,7 +66,7 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text("Fixed at 30° for free tier. Upgrade to customize (15-60°)")
+                        Text("Fixed at 25° for free tier. Upgrade to customize (15-40°)")
                             .font(.caption)
                             .foregroundColor(.orange)
                     }
@@ -77,26 +77,38 @@ struct SettingsView: View {
                 // Notification interval setting
                 Section {
                     HStack {
-                        Text("Alert Interval")
+                        Text("Alert Interval (seconds)")
                         if !subscriptionManager.isPremium {
                             Image(systemName: "lock.fill")
                                 .foregroundColor(.gray)
                                 .font(.caption)
                         }
-                        Spacer()
-                        Text("\(Int(postureMonitor.notificationInterval))s")
-                            .foregroundColor(.secondary)
                     }
-                    Slider(value: $postureMonitor.notificationInterval, in: 5...30, step: 5)
-                        .disabled(!subscriptionManager.isPremium)
-                        .opacity(subscriptionManager.isPremium ? 1.0 : 0.5)
+
+                    HStack {
+                        TextField("Seconds", value: Binding(
+                            get: { Int(postureMonitor.notificationInterval) },
+                            set: { newValue in
+                                let clamped = max(5, min(40, newValue))
+                                postureMonitor.notificationInterval = TimeInterval(clamped)
+                            }
+                        ), formatter: NumberFormatter())
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .disabled(!subscriptionManager.isPremium)
+                            .opacity(subscriptionManager.isPremium ? 1.0 : 0.5)
+
+                        Text("seconds")
+                            .foregroundColor(.secondary)
+                            .font(.subheadline)
+                    }
 
                     if subscriptionManager.isPremium {
-                        Text("Time of continuous bad posture before sending notification")
+                        Text("Time of continuous bad posture before sending notification (5-40s)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text("Fixed at 15s for free tier. Upgrade to customize (5-30s)")
+                        Text("Fixed at 15s for free tier. Upgrade to customize (5-40s)")
                             .font(.caption)
                             .foregroundColor(.orange)
                     }
