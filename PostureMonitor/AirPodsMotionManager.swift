@@ -35,27 +35,28 @@ class AirPodsMotionManager: ObservableObject {
     func checkAvailability() {
         let wasConnected = isAirPodsConnected
 
-        #if targetEnvironment(macCatalyst)
-        // CMHeadphoneMotionManager doesn't work on Mac Catalyst
-        isAirPodsConnected = false
-        airPodsStatus = .unsupported
-        print("❌ AirPods motion tracking is not supported on macOS")
-        print("   Please use this app on iOS/iPadOS instead")
-        return
-        #endif
-
         // Check audio route for connected headphones
         let currentRoute = AVAudioSession.sharedInstance().currentRoute
         let connectedOutput = currentRoute.outputs.first
 
+        print("🔍 Audio Route Check:")
+        print("   Current route outputs: \(currentRoute.outputs.count)")
+        print("   Output port type: \(connectedOutput?.portType.rawValue ?? "none")")
+        print("   Output port name: \(connectedOutput?.portName ?? "none")")
+
         // Detect if AirPods are connected (regardless of motion availability)
         let isAirPodsLike = connectedOutput?.portType == .bluetoothA2DP ||
-                           connectedOutput?.portType == .bluetoothLE
+                           connectedOutput?.portType == .bluetoothLE ||
+                           connectedOutput?.portType.rawValue == "Bluetooth" // Mac Catalyst
         let outputName = connectedOutput?.portName.lowercased() ?? ""
-        let isAirPods = outputName.contains("airpods")
+        let isAirPods = outputName.contains("airpod") // Match "airpod" instead of "airpods" to handle truncation
+
+        print("   Is Bluetooth Audio: \(isAirPodsLike)")
+        print("   Is AirPods by name: \(isAirPods)")
 
         // Check if motion is actually available
         let motionAvailable = motionManager.isDeviceMotionAvailable
+        print("   Motion available: \(motionAvailable)")
 
         if isAirPods || (isAirPodsLike && motionAvailable) {
             // AirPods detected
