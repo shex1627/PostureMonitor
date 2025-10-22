@@ -12,42 +12,44 @@ struct SettingsView: View {
         NavigationView {
             Form {
                 // Premium status section
-                if subscriptionManager.isPremium {
-                    Section {
-                        HStack {
-                            Image(systemName: "crown.fill")
-                                .foregroundColor(.yellow)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Premium Active")
-                                    .font(.headline)
-                                if !subscriptionManager.subscriptionType.isEmpty {
-                                    Text(subscriptionManager.subscriptionType)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            Spacer()
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
-                        }
-                    }
-                } else {
-                    Section {
-                        Button(action: { showPaywall = true }) {
+                if !subscriptionManager.isLoading {
+                    if subscriptionManager.isPremium {
+                        Section {
                             HStack {
                                 Image(systemName: "crown.fill")
                                     .foregroundColor(.yellow)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Upgrade to Premium")
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Premium Active")
                                         .font(.headline)
-                                        .foregroundColor(.primary)
-                                    Text("Unlock unlimited sessions and customization")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                                    if !subscriptionManager.subscriptionType.isEmpty {
+                                        Text(subscriptionManager.subscriptionType)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
                                 Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.secondary)
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                    } else {
+                        Section {
+                            Button(action: { showPaywall = true }) {
+                                HStack {
+                                    Image(systemName: "crown.fill")
+                                        .foregroundColor(.yellow)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Upgrade to Premium")
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        Text("Unlock unlimited sessions and customization")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
                     }

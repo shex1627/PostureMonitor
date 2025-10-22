@@ -16,7 +16,7 @@ struct ContentView: View {
                 statusBanner
 
                 // Free tier session info
-                if !subscriptionManager.isPremium && !postureMonitor.isMonitoring {
+                if !subscriptionManager.isPremium && !postureMonitor.isMonitoring && !subscriptionManager.isLoading {
                     sessionLimitBanner
                 }
 
