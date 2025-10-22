@@ -20,21 +20,23 @@ struct ContentView: View {
                     sessionLimitBanner
                 }
 
-                // Current angle display
-                VStack(spacing: 10) {
-                    Text("\(Int(postureMonitor.currentAngle))°")
-                        .font(.system(size: 80, weight: .bold))
-                        .foregroundColor(postureMonitor.currentAngle > postureMonitor.badPostureThreshold ? .red : .green)
+                // Current angle display (only when monitoring)
+                if postureMonitor.isMonitoring {
+                    VStack(spacing: 10) {
+                        Text("\(Int(postureMonitor.currentAngle))°")
+                            .font(.system(size: 80, weight: .bold))
+                            .foregroundColor(postureMonitor.currentAngle > postureMonitor.badPostureThreshold ? .red : .green)
 
-                    Text("Head Angle")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
+                        Text("Head Angle")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
 
-                    Text(postureStatusText)
-                        .font(.subheadline)
-                        .foregroundColor(postureMonitor.currentAngle > postureMonitor.badPostureThreshold ? .red : .green)
+                        Text(postureStatusText)
+                            .font(.subheadline)
+                            .foregroundColor(postureMonitor.currentAngle > postureMonitor.badPostureThreshold ? .red : .green)
+                    }
+                    .padding()
                 }
-                .padding()
 
                 // Session stats
                 if postureMonitor.isMonitoring {
@@ -114,6 +116,11 @@ struct ContentView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .sessionTimeLimitReached)) { _ in
                 // Session time limit reached (30 minutes for free tier)
+                // Stop the session
+                airpodsManager.stopTracking()
+                postureMonitor.stopMonitoring()
+
+                // Show alert
                 sessionLimitMessage = "Your free session limit of 30 minutes has been reached. Upgrade to Premium for unlimited session duration!"
                 showSessionLimitAlert = true
             }

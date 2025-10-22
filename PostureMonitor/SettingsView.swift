@@ -5,6 +5,8 @@ struct SettingsView: View {
     @StateObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.dismiss) var dismiss
     @State private var showPaywall = false
+    @State private var intervalText: String = ""
+    @FocusState private var intervalFieldFocused: Bool
 
     var body: some View {
         NavigationView {
@@ -86,17 +88,23 @@ struct SettingsView: View {
                     }
 
                     HStack {
-                        TextField("Seconds", value: Binding(
-                            get: { Int(postureMonitor.notificationInterval) },
-                            set: { newValue in
-                                let clamped = max(5, min(40, newValue))
-                                postureMonitor.notificationInterval = TimeInterval(clamped)
-                            }
-                        ), formatter: NumberFormatter())
+                        TextField("Seconds", text: $intervalText)
                             .keyboardType(.numberPad)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .disabled(!subscriptionManager.isPremium)
                             .opacity(subscriptionManager.isPremium ? 1.0 : 0.5)
+                            .focused($intervalFieldFocused)
+                            .onAppear {
+                                intervalText = "\(Int(postureMonitor.notificationInterval))"
+                            }
+                            .onSubmit {
+                                saveIntervalValue()
+                            }
+                            .onChange(of: intervalFieldFocused) { focused in
+                                if !focused {
+                                    saveIntervalValue()
+                                }
+                            }
 
                         Text("seconds")
                             .foregroundColor(.secondary)
@@ -144,6 +152,17 @@ struct SettingsView: View {
             .sheet(isPresented: $showPaywall) {
                 PaywallView()
             }
+        }
+    }
+
+    private func saveIntervalValue() {
+        if let value = Int(intervalText) {
+            let clamped = max(5, min(40, value))
+            postureMonitor.notificationInterval = TimeInterval(clamped)
+            intervalText = "\(clamped)" // Update to show clamped value
+        } else {
+            // Invalid input, reset to current value
+            intervalText = "\(Int(postureMonitor.notificationInterval))"
         }
     }
 }

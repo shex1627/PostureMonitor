@@ -139,6 +139,7 @@ struct PaywallView: View {
                 print("✅ Paywall loaded: \(paywall.placementId)")
                 print("📦 Paywall variation ID: \(paywall.variationId)")
                 print("🔍 Paywall has remote config: \(paywall.remoteConfig != nil)")
+                print("🔍 Paywall object: \(paywall)")
 
                 await MainActor.run {
                     self.paywall = paywall
