@@ -17,8 +17,15 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "crown.fill")
                                 .foregroundColor(.yellow)
-                            Text("Premium Active")
-                                .font(.headline)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Premium Active")
+                                    .font(.headline)
+                                if !subscriptionManager.subscriptionType.isEmpty {
+                                    Text(subscriptionManager.subscriptionType)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
                             Spacer()
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)

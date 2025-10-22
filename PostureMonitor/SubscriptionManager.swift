@@ -5,6 +5,7 @@ import Adapty
 class SubscriptionManager: ObservableObject {
     @Published var isPremium: Bool = false
     @Published var isLoading: Bool = true
+    @Published var subscriptionType: String = "" // "Monthly", "Yearly", "Lifetime", or empty
 
     static let shared = SubscriptionManager()
 
@@ -50,17 +51,41 @@ class SubscriptionManager: ObservableObject {
                     if let accessLevel = profile.accessLevels[self?.premiumAccessLevel ?? "premium"],
                        accessLevel.isActive {
                         self?.isPremium = true
-                        print("✅ Premium subscription active")
+
+                        // Determine subscription type from vendor product ID
+                        let vendorProductId = accessLevel.vendorProductId
+                        if !vendorProductId.isEmpty {
+                            self?.subscriptionType = self?.getSubscriptionType(from: vendorProductId) ?? "Premium"
+                            print("✅ Premium subscription active: \(self?.subscriptionType ?? "")")
+                        } else {
+                            self?.subscriptionType = "Premium"
+                            print("✅ Premium subscription active")
+                        }
                     } else {
                         self?.isPremium = false
+                        self?.subscriptionType = ""
                         print("ℹ️ Free tier user")
                     }
 
                 case .failure(let error):
                     print("❌ Failed to get profile: \(error)")
                     self?.isPremium = false
+                    self?.subscriptionType = ""
                 }
             }
+        }
+    }
+
+    /// Determine subscription type from product ID
+    private func getSubscriptionType(from productId: String) -> String {
+        if productId.contains("monthly") {
+            return "Monthly"
+        } else if productId.contains("yearly") {
+            return "Yearly"
+        } else if productId.contains("lifetime") {
+            return "Lifetime"
+        } else {
+            return "Premium"
         }
     }
 
@@ -71,8 +96,16 @@ class SubscriptionManager: ObservableObject {
                 let profile = try await Adapty.restorePurchases()
                 DispatchQueue.main.async {
                     // Check if restoration gave us premium access
-                    let hasAccess = profile.accessLevels[self.premiumAccessLevel]?.isActive ?? false
+                    let accessLevel = profile.accessLevels[self.premiumAccessLevel]
+                    let hasAccess = accessLevel?.isActive ?? false
                     self.isPremium = hasAccess
+
+                    if hasAccess, let accessLevel = accessLevel, !accessLevel.vendorProductId.isEmpty {
+                        self.subscriptionType = self.getSubscriptionType(from: accessLevel.vendorProductId)
+                    } else {
+                        self.subscriptionType = ""
+                    }
+
                     completion(hasAccess, nil)
                     print(hasAccess ? "✅ Purchases restored" : "ℹ️ No purchases to restore")
                 }
@@ -101,8 +134,16 @@ class SubscriptionManager: ObservableObject {
                         completion(false, nil)
 
                     case .success(let profile, _):
-                        let hasAccess = profile.accessLevels[self?.premiumAccessLevel ?? "premium"]?.isActive ?? false
+                        let accessLevel = profile.accessLevels[self?.premiumAccessLevel ?? "premium"]
+                        let hasAccess = accessLevel?.isActive ?? false
                         self?.isPremium = hasAccess
+
+                        if hasAccess, let accessLevel = accessLevel, !accessLevel.vendorProductId.isEmpty {
+                            self?.subscriptionType = self?.getSubscriptionType(from: accessLevel.vendorProductId) ?? "Premium"
+                        } else {
+                            self?.subscriptionType = ""
+                        }
+
                         completion(hasAccess, nil)
                         print("✅ Purchase successful")
                     }
@@ -121,9 +162,17 @@ extension SubscriptionManager: AdaptyDelegate {
     func didLoadLatestProfile(_ profile: AdaptyProfile) {
         DispatchQueue.main.async {
             // Update premium status when profile changes
-            let hasAccess = profile.accessLevels[self.premiumAccessLevel]?.isActive ?? false
+            let accessLevel = profile.accessLevels[self.premiumAccessLevel]
+            let hasAccess = accessLevel?.isActive ?? false
             self.isPremium = hasAccess
-            print("📱 Profile updated - Premium: \(hasAccess)")
+
+            if hasAccess, let accessLevel = accessLevel, !accessLevel.vendorProductId.isEmpty {
+                self.subscriptionType = self.getSubscriptionType(from: accessLevel.vendorProductId)
+            } else {
+                self.subscriptionType = ""
+            }
+
+            print("📱 Profile updated - Premium: \(hasAccess), Type: \(self.subscriptionType)")
         }
     }
 }
