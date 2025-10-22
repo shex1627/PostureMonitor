@@ -72,17 +72,19 @@ struct PaywallView: View {
 
                         // Purchase button
                         Button(action: purchaseSelected) {
-                            if isPurchasing {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            } else {
-                                Text("Continue")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
+                            ZStack {
+                                if isPurchasing {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                } else {
+                                    Text("Continue")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                }
                             }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
                         }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
                         .background(selectedProduct != nil ? Color.blue : Color.gray)
                         .cornerRadius(12)
                         .padding(.horizontal)
