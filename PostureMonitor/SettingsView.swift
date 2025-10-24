@@ -162,7 +162,7 @@ struct SettingsView: View {
                         }
                     }
 
-                    Link(destination: URL(string: "https://necksense.ftdalpha.com/terms.html")!) {
+                    Link(destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!) {
                         HStack {
                             Text("Terms of Use (EULA)")
                                 .foregroundColor(.primary)
