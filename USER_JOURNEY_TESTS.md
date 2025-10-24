@@ -182,8 +182,8 @@
 
 ### 5.3 Legal Links
 - [ ] Tap "Terms" link
-- [ ] **Expected:** Opens https://necksense.ftdalpha.com/terms.html in Safari
-- [ ] Verify Terms page loads correctly
+- [ ] **Expected:** Opens https://www.apple.com/legal/internet-services/itunes/dev/stdeula/ in Safari
+- [ ] Verify Terms page loads correctly (Apple's standard EULA)
 - [ ] Return to app
 - [ ] Tap "Privacy Policy" link
 - [ ] **Expected:** Opens https://necksense.ftdalpha.com/privacy.html in Safari

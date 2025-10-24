@@ -102,7 +102,7 @@ struct PaywallView: View {
                         HStack(spacing: 4) {
                             Text("By subscribing, you agree to our")
                                 .font(.caption2)
-                            Link("Terms", destination: URL(string: "https://necksense.ftdalpha.com/terms.html")!)
+                            Link("Terms", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
                             Text("and")
                                 .font(.caption2)
                             Link("Privacy Policy", destination: URL(string: "https://necksense.ftdalpha.com/privacy.html")!)
