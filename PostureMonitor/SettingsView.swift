@@ -148,6 +148,44 @@ struct SettingsView: View {
                 } header: {
                     Text("Display")
                 }
+
+                // Legal section
+                Section {
+                    Link(destination: URL(string: "https://necksense.ftdalpha.com/privacy.html")!) {
+                        HStack {
+                            Text("Privacy Policy")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Image(systemName: "arrow.up.right.square")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                    }
+
+                    Link(destination: URL(string: "https://necksense.ftdalpha.com/terms.html")!) {
+                        HStack {
+                            Text("Terms of Use (EULA)")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Image(systemName: "arrow.up.right.square")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                    }
+
+                    Link(destination: URL(string: "https://necksense.ftdalpha.com/support.html")!) {
+                        HStack {
+                            Text("Support")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Image(systemName: "arrow.up.right.square")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                    }
+                } header: {
+                    Text("Legal")
+                }
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)

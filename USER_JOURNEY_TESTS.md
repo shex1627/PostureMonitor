@@ -182,11 +182,11 @@
 
 ### 5.3 Legal Links
 - [ ] Tap "Terms" link
-- [ ] **Expected:** Opens https://shex1627.github.io/PostureMonitor/terms.html in Safari
+- [ ] **Expected:** Opens https://necksense.ftdalpha.com/terms.html in Safari
 - [ ] Verify Terms page loads correctly
 - [ ] Return to app
 - [ ] Tap "Privacy Policy" link
-- [ ] **Expected:** Opens https://shex1627.github.io/PostureMonitor/privacy.html in Safari
+- [ ] **Expected:** Opens https://necksense.ftdalpha.com/privacy.html in Safari
 - [ ] Verify Privacy page loads correctly
 
 ### 5.4 Purchase Flow (Sandbox)
