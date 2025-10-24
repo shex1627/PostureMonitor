@@ -78,7 +78,7 @@ struct ContentView: View {
                 .opacity(airpodsManager.isAirPodsConnected ? 1.0 : 0.5)
             }
             .padding()
-            .navigationTitle("Posture Monitor")
+            .navigationTitle("Neck Sense")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -132,7 +132,7 @@ struct ContentView: View {
             switch airpodsManager.airPodsStatus {
             case .notConnected:
                 HStack {
-                    Image(systemName: "airpodspro")
+                    Image(systemName: "headphones")
                         .foregroundColor(.gray)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("AirPods Not Connected")
@@ -148,7 +148,7 @@ struct ContentView: View {
 
             case .unsupported:
                 HStack {
-                    Image(systemName: "airpodspro")
+                    Image(systemName: "headphones")
                         .foregroundColor(.orange)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Headphones Not Supported")
@@ -164,7 +164,7 @@ struct ContentView: View {
 
             case .connected:
                 HStack {
-                    Image(systemName: "airpodspro")
+                    Image(systemName: "headphones")
                         .foregroundColor(.blue)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("AirPods Ready")
@@ -177,7 +177,7 @@ struct ContentView: View {
 
             case .connectedIdle:
                 HStack {
-                    Image(systemName: "airpodspro")
+                    Image(systemName: "headphones")
                         .foregroundColor(.yellow)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("AirPods Idle")
@@ -193,7 +193,7 @@ struct ContentView: View {
 
             case .tracking:
                 HStack {
-                    Image(systemName: "airpodspro")
+                    Image(systemName: "headphones")
                         .foregroundColor(.green)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Tracking Active")
