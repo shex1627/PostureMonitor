@@ -20,20 +20,49 @@ struct ContentView: View {
                     sessionLimitBanner
                 }
 
-                // Current angle display (only when monitoring)
+                // Current metrics display (only when monitoring)
                 if postureMonitor.isMonitoring {
-                    VStack(spacing: 10) {
-                        Text("\(Int(postureMonitor.currentAngle))°")
-                            .font(.system(size: 80, weight: .bold))
-                            .foregroundColor(postureMonitor.currentAngle > postureMonitor.badPostureThreshold ? .red : .green)
+                    VStack(spacing: 20) {
+                        // Two-axis display
+                        HStack(spacing: 50) {
+                            // Pitch - "Forward Tilt"
+                            VStack(spacing: 5) {
+                                Text("\(Int(postureMonitor.currentMetrics.pitchAbs))°")
+                                    .font(.system(size: 40, weight: .bold))
+                                    .foregroundColor(postureMonitor.pitchEnabled && postureMonitor.currentMetrics.pitchAbs > postureMonitor.pitchThreshold ? .red : (postureMonitor.pitchEnabled ? .green : .gray))
+                                Text("Forward Tilt")
+                                    .font(.caption)
+                                    .foregroundColor(postureMonitor.pitchEnabled ? .secondary : .gray)
+                                if !postureMonitor.pitchEnabled {
+                                    Text("(off)")
+                                        .font(.caption2)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .opacity(postureMonitor.pitchEnabled ? 1.0 : 0.5)
 
-                        Text("Head Angle")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
+                            // Roll - "Side Tilt"
+                            VStack(spacing: 5) {
+                                Text("\(Int(postureMonitor.currentMetrics.rollAbs))°")
+                                    .font(.system(size: 40, weight: .bold))
+                                    .foregroundColor(postureMonitor.rollEnabled && postureMonitor.currentMetrics.rollAbs > postureMonitor.rollThreshold ? .red : (postureMonitor.rollEnabled ? .green : .gray))
+                                Text("Side Tilt")
+                                    .font(.caption)
+                                    .foregroundColor(postureMonitor.rollEnabled ? .secondary : .gray)
+                                if !postureMonitor.rollEnabled {
+                                    Text("(off)")
+                                        .font(.caption2)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .opacity(postureMonitor.rollEnabled ? 1.0 : 0.5)
+                        }
 
                         Text(postureStatusText)
                             .font(.subheadline)
-                            .foregroundColor(postureMonitor.currentAngle > postureMonitor.badPostureThreshold ? .red : .green)
+                            .foregroundColor(isPostureBad ? .red : .green)
                     }
                     .padding()
                 }
@@ -214,9 +243,21 @@ struct ContentView: View {
         return postureMonitor.isMonitoring ? Color.red : Color.blue
     }
 
+    private var isPostureBad: Bool {
+        (postureMonitor.pitchEnabled && postureMonitor.currentMetrics.pitchAbs > postureMonitor.pitchThreshold) ||
+        (postureMonitor.rollEnabled && postureMonitor.currentMetrics.rollAbs > postureMonitor.rollThreshold)
+    }
+
     private var postureStatusText: String {
-        if postureMonitor.currentAngle > postureMonitor.badPostureThreshold {
-            return "Bad Posture - Look Up!"
+        if isPostureBad {
+            var issues: [String] = []
+            if postureMonitor.pitchEnabled && postureMonitor.currentMetrics.pitchAbs > postureMonitor.pitchThreshold {
+                issues.append("neck too far forward")
+            }
+            if postureMonitor.rollEnabled && postureMonitor.currentMetrics.rollAbs > postureMonitor.rollThreshold {
+                issues.append("head tilted to side")
+            }
+            return "Bad Posture: \(issues.joined(separator: ", "))"
         } else {
             return "Good Posture ✓"
         }
@@ -244,8 +285,8 @@ struct ContentView: View {
     }
 
     private func setupCallbacks() {
-        airpodsManager.onPostureUpdate = { angle in
-            postureMonitor.updateAngle(angle)
+        airpodsManager.onPostureUpdate = { metrics in
+            postureMonitor.updateMetrics(metrics)
         }
 
         airpodsManager.onDisconnect = { [weak postureMonitor, weak airpodsManager] in

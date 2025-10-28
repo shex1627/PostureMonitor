@@ -4,7 +4,7 @@ import UIKit
 
 /// Monitors posture and sends notifications when posture is bad
 class PostureMonitor: ObservableObject {
-    @Published var currentAngle: Double = 0.0
+    @Published var currentMetrics = PostureMetrics(pitch: 0, roll: 0, yaw: 0)
     @Published var sessionDuration: TimeInterval = 0
     @Published var badPostureCount: Int = 0
     @Published var isMonitoring: Bool = false
@@ -12,7 +12,8 @@ class PostureMonitor: ObservableObject {
     // Free tier limits
     private let freeSessionsPerDay = 3
     private let freeSessionDurationLimit: TimeInterval = 30 * 60 // 30 minutes
-    private let freeTierThreshold: Double = 25.0
+    private let freeTierPitchThreshold: Double = 25.0
+    private let freeTierRollThreshold: Double = 15.0
     private let freeTierInterval: TimeInterval = 15.0
 
     // Computed property for sessions remaining today
@@ -21,15 +22,27 @@ class PostureMonitor: ObservableObject {
     // Reference to subscription manager
     private let subscriptionManager = SubscriptionManager.shared
 
-    // Configurable settings with persistence
-    @Published var badPostureThreshold: Double {
+    // Configurable settings with persistence (separate thresholds for each axis)
+    @Published var pitchThreshold: Double {
         didSet {
             // Only save if premium user, otherwise reset to free tier default
             if subscriptionManager.isPremium {
-                UserDefaults.standard.set(badPostureThreshold, forKey: "badPostureThreshold")
-                print("💾 Saved threshold: \(Int(badPostureThreshold))°")
+                UserDefaults.standard.set(pitchThreshold, forKey: "pitchThreshold")
+                print("💾 Saved pitch threshold: \(Int(pitchThreshold))°")
             } else {
-                badPostureThreshold = freeTierThreshold
+                pitchThreshold = freeTierPitchThreshold
+            }
+        }
+    }
+
+    @Published var rollThreshold: Double {
+        didSet {
+            // Only save if premium user, otherwise reset to free tier default
+            if subscriptionManager.isPremium {
+                UserDefaults.standard.set(rollThreshold, forKey: "rollThreshold")
+                print("💾 Saved roll threshold: \(Int(rollThreshold))°")
+            } else {
+                rollThreshold = freeTierRollThreshold
             }
         }
     }
@@ -53,6 +66,21 @@ class PostureMonitor: ObservableObject {
         }
     }
 
+    // Axis enable/disable toggles
+    @Published var pitchEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(pitchEnabled, forKey: "pitchEnabled")
+            print("💾 Pitch tracking: \(pitchEnabled ? "enabled" : "disabled")")
+        }
+    }
+
+    @Published var rollEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(rollEnabled, forKey: "rollEnabled")
+            print("💾 Roll tracking: \(rollEnabled ? "enabled" : "disabled")")
+        }
+    }
+
     // Bad posture timing
     private var badPostureStartTime: Date?
     private var lastNotificationTime: Date?
@@ -63,15 +91,21 @@ class PostureMonitor: ObservableObject {
 
     init() {
         // Load saved settings or use free tier defaults for non-premium users
-        let savedThreshold = UserDefaults.standard.object(forKey: "badPostureThreshold") as? Double ?? freeTierThreshold
+        let savedPitchThreshold = UserDefaults.standard.object(forKey: "pitchThreshold") as? Double ?? freeTierPitchThreshold
+        let savedRollThreshold = UserDefaults.standard.object(forKey: "rollThreshold") as? Double ?? freeTierRollThreshold
         let savedInterval = UserDefaults.standard.object(forKey: "notificationInterval") as? TimeInterval ?? freeTierInterval
 
         // Set to free tier defaults initially (will be updated based on premium status)
-        self.badPostureThreshold = savedThreshold
+        self.pitchThreshold = savedPitchThreshold
+        self.rollThreshold = savedRollThreshold
         self.notificationInterval = savedInterval
         self.keepScreenOn = UserDefaults.standard.bool(forKey: "keepScreenOn")
 
-        print("📱 Loaded settings - Threshold: \(Int(badPostureThreshold))°, Interval: \(Int(notificationInterval))s, Keep Screen On: \(keepScreenOn)")
+        // Load axis enable/disable settings (default all enabled)
+        self.pitchEnabled = UserDefaults.standard.object(forKey: "pitchEnabled") as? Bool ?? true
+        self.rollEnabled = UserDefaults.standard.object(forKey: "rollEnabled") as? Bool ?? true
+
+        print("📱 Loaded settings - Pitch: \(Int(pitchThreshold))° (\(pitchEnabled ? "on" : "off")), Roll: \(Int(rollThreshold))° (\(rollEnabled ? "on" : "off")), Interval: \(Int(notificationInterval))s, Keep Screen On: \(keepScreenOn)")
 
         // Update sessions remaining
         updateSessionsRemaining()
@@ -191,32 +225,40 @@ class PostureMonitor: ObservableObject {
         print("Stopped posture monitoring")
     }
 
-    func updateAngle(_ angle: Double) {
-        currentAngle = angle
-        checkPosture(angle)
+    func updateMetrics(_ metrics: PostureMetrics) {
+        currentMetrics = metrics
+        checkPosture(metrics)
     }
 
-    private func checkPosture(_ angle: Double) {
+    private func checkPosture(_ metrics: PostureMetrics) {
         guard isMonitoring else { return }
 
         let now = Date()
-        let isBadPosture = angle > badPostureThreshold
+
+        // Check only enabled axes for bad posture
+        let isPitchBad = pitchEnabled && metrics.pitchAbs > pitchThreshold
+        let isRollBad = rollEnabled && metrics.rollAbs > rollThreshold
+        let isBadPosture = isPitchBad || isRollBad
 
         if isBadPosture {
             // Start timer if not already started
             if badPostureStartTime == nil {
                 badPostureStartTime = now
-                print("Bad posture detected (\(Int(angle))°)")
+                let issues = [
+                    isPitchBad ? "Neck: \(Int(metrics.pitchAbs))°" : nil,
+                    isRollBad ? "Tilt: \(Int(metrics.rollAbs))°" : nil
+                ].compactMap { $0 }.joined(separator: ", ")
+                print("Bad posture detected (\(issues))")
             }
 
-            // Check if 15 seconds have passed
+            // Check if interval has passed
             if let startTime = badPostureStartTime {
                 let duration = now.timeIntervalSince(startTime)
 
-                // Send notification every 15 seconds
+                // Send notification every interval
                 if duration >= notificationInterval {
                     if shouldSendNotification(now: now) {
-                        sendNotification(angle: angle)
+                        sendNotification(metrics: metrics, isPitchBad: isPitchBad, isRollBad: isRollBad)
                         lastNotificationTime = now
                         badPostureCount += 1
                     }
@@ -252,10 +294,21 @@ class PostureMonitor: ObservableObject {
         }
     }
 
-    private func sendNotification(angle: Double) {
+    private func sendNotification(metrics: PostureMetrics, isPitchBad: Bool, isRollBad: Bool) {
         let content = UNMutableNotificationContent()
         content.title = "⚠️ Posture Alert!"
-        content.body = "Your head is tilted \(Int(angle))°. Straighten up!"
+
+        // Create specific message based on which posture issues detected
+        var issues: [String] = []
+        if isPitchBad {
+            issues.append("tilted forward \(Int(metrics.pitchAbs))°")
+        }
+        if isRollBad {
+            issues.append("tilted sideways \(Int(metrics.rollAbs))°")
+        }
+
+        let issueText = issues.joined(separator: ", ")
+        content.body = "Your head is \(issueText). Straighten up!"
 
         // Use critical alert sound for more impact (requires special permission)
         // For now, use defaultCritical which is louder than default

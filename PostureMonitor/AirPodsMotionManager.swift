@@ -10,6 +10,23 @@ enum AirPodsStatus {
     case unsupported    // AirPods don't support motion
 }
 
+/// Posture metrics from all three axes
+struct PostureMetrics {
+    let pitch: Double  // Forward/backward tilt (degrees)
+    let roll: Double   // Left/right tilt (degrees)
+    let yaw: Double    // Head rotation (degrees)
+
+    var pitchAbs: Double { abs(pitch) }
+    var rollAbs: Double { abs(roll) }
+    var yawAbs: Double { abs(yaw) }
+
+    init(pitch: Double, roll: Double, yaw: Double) {
+        self.pitch = pitch
+        self.roll = roll
+        self.yaw = yaw
+    }
+}
+
 /// Manages AirPods motion tracking using CMHeadphoneMotionManager
 class AirPodsMotionManager: ObservableObject {
     private let motionManager = CMHeadphoneMotionManager()
@@ -18,11 +35,11 @@ class AirPodsMotionManager: ObservableObject {
     private var statusCheckTimer: Timer?
 
     @Published var isTracking = false
-    @Published var currentAngle: Double = 0.0
+    @Published var currentMetrics = PostureMetrics(pitch: 0, roll: 0, yaw: 0)
     @Published var isAirPodsConnected = false
     @Published var airPodsStatus: AirPodsStatus = .notConnected
 
-    var onPostureUpdate: ((Double) -> Void)?
+    var onPostureUpdate: ((PostureMetrics) -> Void)?
     var onDisconnect: (() -> Void)?
 
     init() {
@@ -98,7 +115,7 @@ class AirPodsMotionManager: ObservableObject {
         playWakeUpSound()
 
         // Give AirPods a moment to wake up
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+        let workItem = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
 
             guard self.motionManager.isDeviceMotionAvailable else {
@@ -109,7 +126,9 @@ class AirPodsMotionManager: ObservableObject {
             // Start silent audio to keep AirPods active
             self.startSilentAudio()
 
-            self.motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, error in
+            // Start motion updates
+            // Note: CMHeadphoneMotionManager doesn't support reference frames like regular CMMotionManager
+            self.motionManager.startDeviceMotionUpdates(to: .main, withHandler: { [weak self] motion, error in
                 guard let self = self else { return }
 
                 if let error = error {
@@ -122,27 +141,28 @@ class AirPodsMotionManager: ObservableObject {
                     return
                 }
 
-                // Get pitch angle (head tilt forward/backward)
-                let pitch = motion.attitude.pitch
-                let pitchDegrees = pitch * 180.0 / .pi
+                // Get all three rotation angles
+                let pitch = motion.attitude.pitch * 180.0 / .pi  // Forward/backward tilt
+                let roll = motion.attitude.roll * 180.0 / .pi    // Left/right tilt
+                let yaw = motion.attitude.yaw * 180.0 / .pi      // Head rotation
 
-                // Calculate absolute angle from neutral (0° = looking straight)
-                let angle = abs(pitchDegrees)
+                let metrics = PostureMetrics(pitch: pitch, roll: roll, yaw: yaw)
 
-                print("📊 Angle update: \(Int(angle))° (pitch: \(Int(pitchDegrees))°)")
+                print("📊 Posture update - Pitch: \(Int(pitch))°, Roll: \(Int(roll))°, Yaw: \(Int(yaw))°")
 
                 DispatchQueue.main.async {
-                    self.currentAngle = angle
+                    self.currentMetrics = metrics
                     self.lastUpdateTime = Date()
                     self.airPodsStatus = .tracking
-                    self.onPostureUpdate?(angle)
+                    self.onPostureUpdate?(metrics)
                 }
-            }
+            })
 
             self.isTracking = true
             self.airPodsStatus = .connectedIdle
             print("✅ Started AirPods tracking")
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: workItem)
     }
 
     func stopTracking() {
@@ -198,9 +218,10 @@ class AirPodsMotionManager: ObservableObject {
             print("🔔 Played wake-up tone")
 
             // Clean up after playback
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let cleanupWorkItem = DispatchWorkItem {
                 // Player will be deallocated automatically
             }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: cleanupWorkItem)
         } catch {
             print("❌ Failed to play wake-up sound: \(error)")
         }

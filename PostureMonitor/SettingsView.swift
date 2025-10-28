@@ -55,32 +55,71 @@ struct SettingsView: View {
                     }
                 }
 
-                // Threshold setting
+                // Threshold settings
                 Section {
-                    HStack {
-                        Text("Threshold Angle")
-                        if !subscriptionManager.isPremium {
-                            Image(systemName: "lock.fill")
-                                .foregroundColor(.gray)
-                                .font(.caption)
-                        }
-                        Spacer()
-                        Text("\(Int(postureMonitor.badPostureThreshold))°")
-                            .foregroundColor(.secondary)
-                    }
-                    Slider(value: $postureMonitor.badPostureThreshold, in: 15...40, step: 5)
-                        .disabled(!subscriptionManager.isPremium)
-                        .opacity(subscriptionManager.isPremium ? 1.0 : 0.5)
+                    // Pitch threshold - renamed to "Forward Tilt"
+                    Toggle("Track Forward Tilt", isOn: $postureMonitor.pitchEnabled)
 
-                    if subscriptionManager.isPremium {
-                        Text("Posture is considered bad when head angle exceeds this threshold")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text("Fixed at 25° for free tier. Upgrade to customize (15-40°)")
-                            .font(.caption)
-                            .foregroundColor(.orange)
+                    if postureMonitor.pitchEnabled {
+                        HStack {
+                            Text("Forward Tilt Threshold")
+                            if !subscriptionManager.isPremium {
+                                Image(systemName: "lock.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                            }
+                            Spacer()
+                            Text("\(Int(postureMonitor.pitchThreshold))°")
+                                .foregroundColor(.secondary)
+                        }
+                        Slider(value: $postureMonitor.pitchThreshold, in: 10...40, step: 5)
+                            .disabled(!subscriptionManager.isPremium)
+                            .opacity(subscriptionManager.isPremium ? 1.0 : 0.5)
+
+                        if !subscriptionManager.isPremium {
+                            Text("Fixed at 25° for free tier. Upgrade to customize (10-40°)")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        } else {
+                            Text("Alert when neck tilts forward more than this angle")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
+
+                    // Roll threshold - renamed to "Side Tilt"
+                    Toggle("Track Side Tilt", isOn: $postureMonitor.rollEnabled)
+
+                    if postureMonitor.rollEnabled {
+                        HStack {
+                            Text("Side Tilt Threshold")
+                            if !subscriptionManager.isPremium {
+                                Image(systemName: "lock.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                            }
+                            Spacer()
+                            Text("\(Int(postureMonitor.rollThreshold))°")
+                                .foregroundColor(.secondary)
+                        }
+                        Slider(value: $postureMonitor.rollThreshold, in: 10...30, step: 5)
+                            .disabled(!subscriptionManager.isPremium)
+                            .opacity(subscriptionManager.isPremium ? 1.0 : 0.5)
+
+                        if !subscriptionManager.isPremium {
+                            Text("Fixed at 15° for free tier. Upgrade to customize (10-30°)")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        } else {
+                            Text("Alert when head tilts to the side more than this angle")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    Text("Toggle tracking on/off to customize what you monitor")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 } header: {
                     Text("Posture Detection")
                 }
